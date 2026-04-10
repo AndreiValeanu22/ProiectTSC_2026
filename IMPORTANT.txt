@@ -1,0 +1,1 @@
+la proiect de la TSC nu exista checker, deci putem sa comunicam intre noi si sa ne cerem parerile, si a mai zis ca dupa ce ii predam lui Matei proiectul, sau inainte, o sa fie incarcat pe github, si o sa fie un tabel in care o sa ne trecem si o sa ni-l corectam unul altora, si el spune ca nu va exista cazuri sa nu existe greseli la proiect

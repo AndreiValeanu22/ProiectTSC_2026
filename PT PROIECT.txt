@@ -1,0 +1,1391 @@
+Deci prima oara faceti inatai schema la ce e ales de pe ocw, sa nu va dea erori, sunt doar warning urile respective, dar sa nu aveti erori, dupa care la 2, dupa ce am facut schema, trecem la partea de PCB, PCB-ul prima oara, ca sa nu uitati dupa, dati load la fisierle drc sunt puse pe ocw, dar sa nu umblati la fisierele acelea, dupa care deschideti ce v-a dat proful cu boardoutofline, schema aia cu liniile galbene, si ca sa faceti chestiile alea si voi, cel mai usor este sa va duceti pe fiecare linie, dati click dreapta pe properties, si vedeti acolo toate coordonatele x, y lungime, ca nu o sa masurati voi. Dupa care, dupa ce am facut si asta, mai intai pozitionam componentele pe placa, fara sa le si uniti traseele, deci mai intai punetile orientativ pe placa grupate, de exemplu partea de masurare a curentului, toate componentele care sunt in partea aia le punem in partea aia, toata componentele care sunt in partea cealalta le punem in partea cealalta. Dupa care, ne hotaram in cate straturi facem chestia asta, putem sa facem in doua, sau in 4. In doua straturi adica top si buttom, adica partea rosie si partea albastra, ne putem chinui mai mult fata de varianta a doua in care avem 4 starturi si o sa avem top, ground, power si buttom. Cand avem 4 starturi, traseele alea de putere 3v3, vbat, vbus mi le aratati/comutati/ mutati pe planul de power, traseele celelalte puteti sa le mutati pe top si buttom, iar pe planul de ground mnu mutate nimic, o sa faceti acolo polingopor (nu siu cum se scrie). Dupa ce trasati semnalele de putere, trasati si semnalele normale: SCL, SDA. Dupa aceea, la final, va ocupati de ground, de traseele pe care scrie ground, pentru ca atunci cand facem planul de masa, panul acela de masa, daca il facem in doua straturi, il punem pe amandoua straturiile, si atutomat o sa se uneasca multe ground uri deci o sa scapati de airwires; daca facem pe 4 straturi, planul de masa trebuie sa fie pe top, pe ground si pe buttom. Pe planul de putere nu trebuie sa avem plan de masa. SI ultima parte, dupa ce acceptati eroriile de la traseele de putere si de la trasee in general, trebuie sa adaugam la componente module 3d, ca sa arate frumos placa cu toate modulele 3d
+
+
+Partea de 3d:
+
+mouser ikmode 3dmodel, descracm arhiva, fisier stp, ne ducem in Fusion, editam libraria, footprints click dreapta, dam pe acel chip create new 3d mode, dam upload, click dreapta insert into current desgin, rotim componenta, si o aranjezi, salvezi, salvam libraria, salvam toate nenorociriile, ne ducem in schematic, dam yes, salvam, update, cautam componentele pe net, resitor24033dmode, e pe youtube tutorial
+
+
+
+Uite un **ghid clar, pe pași**, ca să știi exact cu ce să începi și în ce ordine. Ți-am pus ce e **prioritar** acum, pe baza cerințelor OCW și ce a spus laborantul.
+
+---
+
+## 0) Verifică sincronizarea
+- **Schematic ↔ PCB** trebuie să fie legate (fără „inconsistent”).
+- Rulezi **ERC** în schematic (erori 0, warnings ok).
+- Apoi **Update PCB**.
+
+---
+
+## 1) Încarcă regulile DRC (obligatoriu)
+În PCB:
+- **Rules / DRC → Load…**  
+- selectezi fișierul DRC de pe OCW.  
+Nu modifici fișierul.
+
+---
+
+## 2) Conturul plăcii (Board outline)
+- Deschizi board‑ul de referință (cel dat de TSC).
+- Folosești **coord. X/Y** din Properties pentru contur.
+- Copiezi conturul în PCB‑ul tău **sau** îl reconstruiești cu coordonate.
+
+---
+
+## 3) Placement (fără rutare)
+Asta e etapa în care ești acum.  
+**Grupezi componentele pe blocuri:**
+- MCU + decuplări
+- DC/DC + pasive
+- E‑paper + pasive
+- Haptic driver + OUT+/OUT‑
+- IMU + pasive
+- USB‑C + ESD
+- Test‑pads / SWD
+
+**Toate pe TOP** (cerință OCW).
+
+---
+
+## 4) Alege straturi
+Ai 2 opțiuni:
+
+### Varianta simplă (recomandată)
+**2 straturi (TOP + BOTTOM)**  
+- Mai multă muncă, dar ok pentru laborator.
+- **GND plane pe TOP și BOTTOM.**
+
+### Varianta avansată
+**4 straturi (TOP + GND + POWER + BOTTOM)**  
+- Trasee de putere pe POWER plane.
+- GND pe Ground plane + Top/Bottom.
+
+Dacă nu ți s-a cerut explicit 4 straturi, rămâi la **2 straturi**.
+
+---
+
+## 5) Rutare: power întâi
+- **Trasee de putere** (VUSB/VBAT/3V3) width = **0.3 mm**.
+- Apoi semnalele normale (SDA/SCL etc.) min **0.15 mm**.
+- **Fără unghiuri drepte**.
+
+---
+
+## 6) Planuri de masă
+- Polygon GND pe **TOP + BOTTOM**.
+- **Ratsnest** ca să se umple.
+- **Keepout sub antenă** (fără cupru).
+
+---
+
+## 7) DRC + fixări
+- Rulezi DRC.
+- Corectezi erorile reale.
+- Warning‑urile acceptate doar dacă sunt menționate ca „ok” în OCW.
+
+---
+
+## 8) 3D models (la final)
+După ce PCB‑ul e ok:
+- Adaugi 3D models în librării.
+- Update schematic → update PCB.
+
+---
+
+# Ce faci ACUM (următorul pas)
+Tu ai **placement făcut** (din poză).  
+**Următorul pas real** este:
+
+✅ **Choose layer count (2 straturi)**  
+✅ **Începe routarea de power**  
+✅ **Apoi semnalele**  
+✅ **Apoi plane de GND**
+
+---
+
+Dacă vrei, putem merge **pas cu pas** exact ca acum:
+
+Spune-mi:
+- rămâi pe **2 straturi** sau vrei **4 straturi**?  
+- și îți dau imediat **pasul 1 de routing (power)** în detaliu, cu ce net‑uri să trasezi primele.
+
+
+
+
+
+
+
+
+
+
+
+Mai jos ai pașii refăcuți, adaptați pentru varianta avansată (4 straturi), clar și detaliat.
+5) Rutare (4 straturi)
+A) Setează stack‑up (4 straturi)
+Layer 1 (Top): semnale + componente
+Layer 2 (GND): plan masă
+Layer 3 (POWER): plan alimentare
+Layer 4 (Bottom): semnale
+În Fusion:
+Board Setup → Layers → setezi 4 straturi.
+Denumești L2 = GND, L3 = POWER (dacă permite).
+B) Trasee de putere (primele)
+Rutezi VUSB / VBAT / 3V3.
+Width = 0.3 mm (sau mai gros dacă încape).
+Pentru neturile de power, poți:
+Top/Bottom pentru scurte
+POWER plane (Layer 3) pentru distribuție
+Reguli rapide:
+trasee scurte și late
+fără unghiuri drepte (doar 45°)
+cât mai puține vias pe power
+C) Semnale normale
+SDA/SCL și restul: width min 0.15 mm
+Rutezi pe Top/Bottom (nu pe GND/POWER)
+Evită să treci sub antenă
+6) Planuri de masă
+A) GND pe Top + Bottom + L2
+Layer 2 (GND): plan complet
+Top + Bottom: polygon GND (ca să închizi bucle și să reduci airwires)
+B) Keepout sub antenă
+Creezi keepout sub antenă (fără cupru pe Top/Bottom/GND/POWER).
+Nu rutezi nimic acolo.
+C) Ratsnest
+Ratsnest ca să se umple toate plane‑urile.
+7) DRC + fixări
+DRC → Load… fișierul de pe OCW.
+Rulezi DRC.
+Corectezi erorile reale (overlap, clearance, etc.)
+Warning‑urile le accepți doar dacă sunt menționate ca ok în OCW.
+8) 3D Models (la final)
+După ce PCB e ok:
+Intri în library → footprint.
+Add 3D Model (import .step).
+Insert into current design.
+Aliniezi / rotești modelul.
+Save library.
+Update schematic → update PCB.
+
+
+
+
+
+-------------------------------------------------------------------------------------------
+Da. Apasă Polygon, setezi Signal Name = GND, Isolate = 0.2 mm, apoi trasezi conturul plăcii și dai Ratsnest. Repetă și pe Bottom.
+-------------------------------------------------------------------------------------------
+
+
+
+Hai sa o mai luam inca o data logic:
+
+Am facut layerul de Top, Bottom si GROUND. Mai urmeaza cel de POwer. Scopul este sa se reduca cat mai multe dintre erorile de la buttons. Ajuta ma sa fac pentru Route63, adica pentru Power. Ce trebuie sa selectez si cum, mai spune-mi inca o data fara sa omiti vreun lucru. Arata-mi pe poza trimisa de mine, ce sa selectez pentru fiecare. Ajuta ma sa fac Keepout, dupa aceea si dupa ce termin cu layerele, sub antena, dar doar dupa ce termin cu layerele. Ti minte chestia asta? Ai vazut cum am facut layerle pentru power si ce tag uri am din mesajele de mai sus, asa ca da-mi pasii bine detaliati, in ordine si foarte bine expliciti. Totul, la denumiri la tot sa fie explicit si cum denumesc eu ala cutare etc. Ok?
+
+Mai am si pasii astia, nu stiu daca ajuta la ceva:
+
+1) Polygon GND (Top și Bottom)
+Top:
+Polygon → Layer = Top
+Signal Name: GND
+Isolate: 0.2 mm (sau cât cere DRC)
+Trasezi conturul plăcii
+Re‑fill Polygon Pours
+Bottom:
+Polygon → Layer = Bottom
+Signal Name: GND
+Isolate: 0.2 mm
+Trasezi conturul plăcii
+Re‑fill Polygon Pours
+2) Power plane (Layer 3)
+Pe layer‑ul de power faci poligoane separate pentru fiecare rail:
+A) 3V3
+Layer = Power (L3)
+Signal Name: 3V3 (exact cum e netul în schematic)
+Isolate: 0.2 mm
+Trasezi zona unde vrei 3V3
+Re‑fill
+B) VBAT
+Layer = Power (L3)
+Signal Name: VBAT
+Isolate: 0.2 mm
+Trasezi zona VBAT (separată de 3V3)
+Re‑fill
+C) VBUS/VUSB (dacă există)
+Layer = Power (L3)
+Signal Name: VBUS sau VUSB (exact netul din schematic)
+Isolate: 0.2 mm
+Trasezi zona VBUS
+3) Keepout sub antenă
+Desenezi keepout pe Top + Bottom + Power (dacă poți)
+Fără cupru sub antenă
+Dacă vrei, spune-mi exact numele net‑urilor tale pentru power (ex: 3V3/2.4A, VBAT/1.3A, VUSB/1.5D) și îți zic exact cum trebuie scrise la Signal Name.
+
+
+
+
+
+Nu uita mesajul tau asta:
+
+Rezolvă acum (înainte de routare)
+Overlap (Smd‑Smd) → componente/pads se suprapun. Mută piesele.
+Copper Clearance (Smd‑Smd) → prea aproape; mută.
+Component Exclude Clearance (Line‑Line) → ai restricții/keepout; mută.
+Board Outline Clearance (Smd‑Hole) → ceva e prea aproape de contur; mută.
+Poți lăsa deocamdată
+Air Wire (cu Unrouted) → normal înainte de rutare.
+Deci: curăță toate erorile de plasare, apoi începi rutarea.
+Dacă vrei, îți explic cum identifici rapid fiecare eroare (click pe eroare → zoom pe problemă).
+
+
+
+Am înțeles. Luăm **doar Route63 (POWER)**, pas cu pas, **fără să omitem nimic**, și **keepout îl facem după ce terminăm layerele** (țin minte).
+
+Nu pot desena direct pe poza ta, dar îți spun **exact unde** să trasezi fiecare zonă, folosind reperele de pe placa ta (USB‑C, IC1, U2, TP_VBAT1).
+
+---
+
+# ✅ PASUL A — Verifică numele exacte ale net‑urilor
+Trebuie să folosești **exact numele din schematic**, nu „3V3/VBAT/VBUS” dacă în schemă apar altfel.
+
+Exemple:
+- `3V3/2.4A`
+- `VBAT/1.3A`
+- `VBUS/1.5D`
+
+**Cum afli exact:**
+1. În schematic, selectează netul (ex. 3V3).
+2. Citește eticheta exactă.
+3. Copiază numele exact (cu tot cu / și cifre).
+
+---
+
+# ✅ PASUL B — Power plane pe Route63 (Layer intern)
+
+## 1) Polygon pentru **VBUS**
+**Unde:** lângă **USB‑C (J5)** și **IC1 (BQ25180)**  
+**De ce:** VBUS vine din USB și intră în charger.
+
+**Pași:**
+1. Selectezi layer **Route63**.
+2. `Polygon` → **Signal Name = VBUS/…** (exact numele tău).
+3. **Isolate = 0.2 mm**
+4. Trasezi **o zonă mică** în colțul unde ai USB‑C + IC1.
+   - să acopere doar zona VBUS, nu toată placa.
+5. **Re‑fill Polygon Pours**.
+
+---
+
+## 2) Polygon pentru **VBAT**
+**Unde:** lângă **TP_VBAT1 + TP_BAT_GND1** și **U2 (MAX17048)**  
+**De ce:** VBAT e pentru baterie și fuel gauge.
+
+**Pași:**
+1. Tot pe **Route63**.
+2. `Polygon` → **Signal Name = VBAT/…** (exact).
+3. **Isolate = 0.2 mm**
+4. Trasezi **o zonă mică** în zona bateriei (unde sunt TP_VBAT1 și U2).
+5. **Re‑fill Polygon Pours**.
+
+---
+
+## 3) Polygon pentru **3V3**
+**Unde:** zona generală unde ai **MCU + restul circuitului**  
+**De ce:** 3V3 alimentează tot.
+
+**Pași:**
+1. Tot pe **Route63**.
+2. `Polygon` → **Signal Name = 3V3/…** (exact).
+3. **Isolate = 0.2 mm**
+4. Trasezi **o zonă mai mare**, dar **fără overlap** peste VBAT și VBUS.
+5. **Re‑fill Polygon Pours**.
+
+---
+
+# ✅ ATENȚIE IMPORTANTĂ (Power plane)
+- **NU suprapune** poligoanele între ele.  
+- Dacă se suprapun, DRC va da erori.
+- Dacă nu ai loc pentru 3 zone, fă 3V3 doar în zona MCU, iar restul trasezi manual.
+
+---
+
+# ✅ PASUL C — Abia după ce ai poligoanele POWER
+Facem **Keepout sub antenă** (cum ai cerut):
+
+1. Selectezi layer **tKeepout** și **bKeepout** (și keepout pe power dacă există).
+2. Desenezi un dreptunghi sub antenă.
+3. Re‑fill.
+
+---
+
+# ✅ Verificare rapidă (după ce termini)
+- Vezi **3 zone separate** pe Route63: una VBUS, una VBAT, una 3V3.
+- Niciuna nu se suprapune.
+- Top/Bottom/Route2 sunt GND.
+
+---
+
+Spune-mi **numele exacte ale net‑urilor** (cum apar în schematic: `3V3/2.4A` etc.) și îți rescriu exact **Signal Name** pentru fiecare polygon.
+
+Și confirm: **keepout îl facem după layere**, cum ai cerut.
+
+
+
+
+
+
+
+Iată **pas cu pas** cum faci **keepout sub antenă**, exact:
+
+---
+
+## 1) Află unde e antena
+Pe PCB, identifici zona antenei (de obicei lângă margine, unde e footprint‑ul RF/antena).
+
+---
+
+## 2) Keepout pe TOP
+1. În lista de layere, selectezi **tKeepout**.  
+2. **Create → Polygon** (sau Rectangle).  
+3. Desenezi un dreptunghi sub antenă (zona pe care vrei să fie „fără cupru”).  
+4. Done.
+
+---
+
+## 3) Keepout pe BOTTOM
+1. Schimbi layer pe **bKeepout**.  
+2. **Create → Polygon** (sau Rectangle).  
+3. Desenezi **aceeași zonă** (sub antenă).  
+4. Done.
+
+---
+
+## 4) Keepout pe POWER / GND (dacă există)
+Dacă ai keepout pentru planuri interne:
+- alege layerul keepout pentru plane (ex: **cKeepout** dacă apare)  
+- desenezi aceeași zonă.
+
+---
+
+## 5) Re‑fill
+- **Right‑click → Re‑fill Polygon Pours**.
+
+---
+
+Dacă îmi spui unde e antena pe placa ta (sus, dreapta, lângă ce conector), îți zic exact cum să desenezi keepout‑ul.
+
+
+
+
+
+
+
+
+Cauți antena după **net** sau după **componenta RF**:
+
+## Metoda rapidă
+1. În **Schematic**, apasă **S** (Search) și caută `ANT` / `ANT1` / `ANTENNA`.  
+2. Selectezi netul/ componenta găsită → **Locate in PCB**.  
+3. În PCB se evidențiază zona antenei.
+
+## Indicii tipice
+- E lângă **MCU‑ul cu radio** (nRF52840).  
+- Lângă o rețea de **matching RF** (condensatoare/inductoare mici).  
+- De obicei e pe **marginea plăcii**.
+
+Dacă îmi trimiți un zoom pe zona cu netul `ANT` în schematic, îți spun exact unde e pe PCB.
+
+
+
+
+
+
+
+
+Nu ai `tKeepout` în Fusion. Folosești **Restrict**.
+
+## Keepout sub antenă (corect în Fusion)
+
+### 1) TOP
+1. În lista de layere, selectează **e3 RestrictTop**.  
+2. **Create → Rectangle** (sau Polygon).  
+3. Desenezi zona sub antenă.  
+4. Done.
+
+### 2) BOTTOM
+1. Selectează **e4 RestrictBottom**.  
+2. Desenezi **aceeași zonă**.  
+3. Done.
+
+### 3) Vias
+1. Selectează **e5 RestrictVias**.  
+2. Desenezi aceeași zonă.  
+3. Done.
+
+### 4) Re‑fill
+- **Right‑click → Re‑fill Polygon Pours**.
+
+Asta creează “no‑copper / no‑vias” sub antenă.
+
+
+
+
+
+
+
+Zona de keepout trebuie să acopere **întreaga antenă** și **zona de sub ea**, plus un mic spațiu de siguranță în jur.
+
+Regulă simplă:
+- Cuprinde **footprint‑ul antenei** + **tot spațiul din fața ei spre margine**.
+- Dacă ai recomandări din datasheet, urmează-le (ex: 2–5 mm margine liberă).
+
+Scop: **fără cupru, fără trasee, fără vias** sub antenă.
+
+
+
+
+
+
+Selectezi aceste layere, pe rând:
+
+- **e3 RestrictTop** → desenezi zona  
+- **e4 RestrictBottom** → desenezi aceeași zonă  
+- **e5 RestrictVias** → desenezi aceeași zonă  
+
+Apoi **Re‑fill Polygon Pours**.
+
+
+
+
+
+
+În Fusion, zonele **Restrict** nu se desenează cu **Polygon**.  
+Trebuie să folosești **Line/Rectangle** și să schimbi **layer‑ul activ** înainte.
+
+Fă exact așa:
+
+1. În lista de layere (panoul din stânga), **click pe cercul din dreapta** la:
+   - **e3 RestrictTop** (îl faci layer activ)
+2. Mergi la **Create → Rectangle** (sau Line)  
+3. Desenezi zona keepout.
+
+Repetă:
+- **e4 RestrictBottom** → Create → Rectangle → desenezi aceeași zonă  
+- **e5 RestrictVias** → Create → Rectangle → desenezi aceeași zonă
+
+Dacă nu poți face layer activ din listă, spune-mi ce vezi în dropdown‑ul de layer din toolbar și îți zic exact unde să schimbi.
+
+
+
+
+
+
+Mai jos ai **ce corectezi acum** și **cum** pentru fiecare tip din listă:
+
+---
+
+## 1) **Pad‑Solid Polygon Shape (ct Top)**
+Apare din poligonul GND pe Top.
+**Fix:**
+- Dă **Re‑fill Polygon Pours**.
+- În polygon GND (Top), pune **Isolate = 0.2 mm** și **Thermals = ON**.
+- Dacă tot apare, mută pad‑ul ușor sau mărește isolate la 0.25 mm.
+
+---
+
+## 2) **Copper Clearance (Smd‑Smd)**
+Pad‑uri prea aproape.
+**Fix:**
+- Dublu‑click pe eroare → zoom pe conflict.
+- Mută ușor una dintre componente.
+
+---
+
+## 3) **Copper – Restrict Clearance (Smd‑Rectangle)**
+Ai un pad peste un **Restrict** (keepout).
+**Fix:**
+- Ai desenat keepout prea mare.
+- Micșorează **RestrictTop/Bottom** ca să nu atingă pad‑uri.
+
+---
+
+## 4) **Component Exclude Clearance (Line‑Line)**
+Ai overlap pe layer‑ul **ComponentExclude**.
+**Fix:**
+- Mută componentele care se suprapun sau sunt prea aproape.
+- Dă click pe eroare → vezi exact zona.
+
+---
+
+## 5) **Clearance (Polygon Pour‑Polygon Pour) pe c63**
+Poligoanele de power se suprapun.
+**Fix:**
+- Micșorează zonele `VBUS`, `VBAT`, `3V3` pe Route63 ca **să nu se atingă**.
+- Lasă **spațiu** între ele.
+
+---
+
+## 6) **Board Outline Clearance (Smd‑Hole)**
+O componentă e prea aproape de contur.
+**Fix:**
+- Mută piesa puțin spre interior.
+
+---
+
+## 7) **Air Wires**
+Normal înainte de rutare → le rezolvi după routare.
+
+---
+
+Dacă vrei, îți zic exact fiecare conflict:  
+**click pe eroare → zoom** și trimite un screenshot, îți spun ce să muți.
+
+
+
+În schema asta nu e o „eroare” de corectat dacă:
+
+- **D+/D‑** merg prin **D8 (ESD)**  
+- **VBUS** merge la **C28/C35** (decuplare)  
+- **CC1/CC2** au rezistențele la GND (R1/R2)
+
+Deci schema e ok.  
+Problemele vin de obicei din **plasare** (ESD prea departe de J5) sau din **DRC clearance**, nu din schematic. Deci e la Dan Tudose
+
+
+Arată ok ca etapă intermediară (Top + Power), dar nu pot confirma totul doar din poză. Verifică rapid:
+
+- Poligoanele pe **Route63** sunt separate (nu se suprapun).  
+- Top are **GND pour**.  
+- Keepout sub antenă există.  
+
+Dacă astea sunt ok, poți începe **routingul de power**.
+
+
+
+
+Airwire‑urile sunt **trasee nerutate**. Nu le „rezolvi” direct; le rezolvi **routând** conexiunile.
+
+Dacă vrei să facem ca la profesor, începem așa:
+
+1) **Rutezi power**: `VBUS/2.6E`, `VBAT/2.5C`, `3V3/2.4A` (width 0.3 mm).  
+2) **Rutezi semnalele critice**: `SCL`, `SDA`, `USB D+/D-`, etc. (min 0.15 mm).  
+3) **Re‑fill** după fiecare grup.  
+4) Airwire‑urile scad până dispar.
+
+Vrei să începem cu power routing pas cu pas?
+
+
+
+
+
+
+Perfect. Începem **pas cu pas** cu **power routing**. Urmează exact pașii:
+
+---
+
+# ✅ PASUL 1 — Setezi lățimea pentru power
+1. Alege **Route Manual**.
+2. În bara de sus setezi **Width = 0.3 mm**.
+3. Layer activ: **Top (ct)**.
+
+---
+
+# ✅ PASUL 2 — Routezi VBUS/2.6E
+1. Click pe un **pad VBUS** de la USB‑C (J5).  
+2. Trasezi către **IC1 (BQ25180) VIN**.
+3. Ții traseul scurt și drept (colțuri la 45°).
+4. Dacă trebuie, folosești **via** spre Power plane.
+
+---
+
+# ✅ PASUL 3 — Routezi VBAT/2.5C
+1. Click pe **TP_VBAT1** sau ieșirea BAT a IC1.  
+2. Trasezi către **U2 (MAX17048)** și către zona bateriei.  
+3. Traseu scurt, 0.3 mm.
+
+---
+
+# ✅ PASUL 4 — Routezi 3V3/2.4A
+1. Click pe **VOUT (DC/DC)**.  
+2. Trasezi către MCU și restul (cel puțin către primul pin 3V3 principal).  
+3. Traseu scurt, 0.3 mm.  
+4. Folosești via către **power plane** dacă e nevoie.
+
+---
+
+# ✅ PASUL 5 — Re‑fill
+- **Right‑click → Re‑fill Polygon Pours**.
+
+---
+
+Spune-mi cu ce net vrei să începem: VBUS / VBAT / 3V3 și îți explic concret pe zona ta.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perfect. **Începem cu VBUS/2.6E**:
+
+---
+
+# ✅ VBUS/2.6E — Pas cu pas
+
+## 1) Activează routarea
+- **Route Manual**
+- **Width = 0.3 mm**
+- **Layer = Top (ct)**
+
+## 2) Evidențiază netul
+- Click pe padul **VBUS** de la **USB‑C (J5)**  
+- Ar trebui să se evidențieze airwire‑urile de VBUS/2.6E
+
+## 3) Traseu principal
+- Trasează **VBUS** de la J5 către **IC1 (BQ25180) – pin VIN**  
+- Ține traseul **scurt și direct**  
+- **Colțuri la 45°**
+
+## 4) Legătură la decuplări
+- Leagă **C28/C35** (condensatoarele VBUS) direct la VBUS, cu traseu scurt.
+- Nu trece peste alte semnale.
+
+## 5) Dacă e nevoie de plane
+- Dacă nu ajungi ușor, pune un **via** în traseul VBUS ca să se lege la **power plane (Route63)**.
+
+## 6) Re‑fill
+- **Right‑click → Re‑fill Polygon Pours**
+
+---
+
+Spune-mi dacă reușești să tragi **VBUS J5 → IC1 VIN**. Dacă nu, trimite un zoom cu zona J5 + IC1 și îți spun exact pe unde să treci.
+
+
+
+
+Ori C28 ori C35, corect? Nu. Ambele trebuie legate la VBUS.
+C35 nu trebuie sa apartina lui IC1, corect? C35 e condensator pe VBUS. Trebuie să fie legat la VBUS + GND, lângă IC1/USB.
+Deci da, aparține blocului IC1/USB.
+
+
+Da, arată bine: traseu lat, scurt, colțuri 45°.
+Verifică doar că ajunge la VIN‑ul lui IC1 și că C28/C35 sunt legate pe VBUS. Dacă da, e ok.
+
+
+
+
+
+
+
+
+
+
+
+
+Următorul: **VBAT/2.5C**.
+
+## ✅ VBAT/2.5C — Pas cu pas
+1. **Route Manual**  
+2. **Width = 0.3 mm**, **Layer = Top (ct)**  
+3. Pornești de la **IC1 pin BAT** (sau **TP_VBAT1**).  
+4. Trasezi către **U2 (MAX17048) VDD/BAT** și către **TP_VBAT1** (dacă nu e legat).  
+5. Ții traseul **scurt și direct**, colțuri 45°.  
+6. **Re‑fill Polygon Pours**.
+
+Trimite un zoom cu zona **IC1 + U2 + TP_VBAT1** dacă nu ajungi.
+
+
+
+Merge IC1 pin VBAT? Eu am asa in schematic
+
+Da — în schematic e pinul BAT al IC1 (charger). Acolo rutezi VBAT/2.5C.
+
+
+Am facut pasii astia:
+Următorul: VBAT/2.5C.
+✅ VBAT/2.5C — Pas cu pas
+Route Manual
+Width = 0.3 mm, Layer = Top (ct)
+Pornești de la IC1 pin BAT (sau TP_VBAT1).
+Trasezi către U2 (MAX17048) VDD/BAT și către TP_VBAT1 (dacă nu e legat).
+Ții traseul scurt și direct, colțuri 45°.
+Re‑fill Polygon Pours.
+Trimite un zoom cu zona IC1 + U2 + TP_VBAT1 dacă nu ajungi.. Ce urmeaza dupa?
+
+Daca nu mai pot trage fire pe layerul de top ca sa nu se intretaie, cum pot schimba layerul? e buna ideea mea de schimbare? pe ce layer sa schimb?
+
+
+
+
+
+
+Da, **IC1 pin BAT** este corect pentru VBAT.
+
+## Urmează după VBAT
+**3V3/2.4A**:
+1. Route Manual  
+2. Width = **0.3 mm**  
+3. Pornești de la **VOUT (DC/DC)**  
+4. Trasezi către **MCU** și primul nod 3V3 principal  
+5. Re‑fill
+
+---
+
+## Dacă nu mai poți pe Top (se intersectează)
+Da, ideea ta e corectă: **schimbi layerul**.
+
+### Cum schimbi layerul corect
+1. În timpul routing‑ului, apasă **V** (via).  
+2. Coboară pe **Bottom (cb)**.  
+3. Continui traseul pe Bottom.  
+
+### Pe ce layer schimbi?
+- **Semnale** → **Bottom** (ok)  
+- **Power** → încearcă să rămâi pe Top, dar dacă e blocat, folosește **via + power plane**.
+
+**Nu rutezi pe Route2/Route63** (acolo sunt plane).
+
+Spune-mi dacă vrei să trecem pas cu pas la 3V3.
+
+
+
+
+Da, **IC1 pin BAT** e corect pentru VBAT.
+
+## Următorul pas: **3V3/2.4A**
+- Route Manual  
+- Width = 0.3 mm  
+- Pornești din **VOUT** (DC/DC) → către MCU și restul (cel puțin primul pin 3V3 principal).  
+- Re‑fill după.
+
+## Dacă nu mai ai loc pe Top
+Da, e ok să schimbi layerul.
+
+**Cum schimbi layerul în timpul rutării:**
+- În timp ce rutezi, apasă **V** (sau click dreapta → **Via**)  
+- Se pune un **via** și treci pe **Bottom (cb)**  
+- Continui traseul pe Bottom
+
+**Recomandare:**
+- **Power**: rămâi pe Top cât poți.  
+- **Semnale**: poți trece pe Bottom fără probleme.  
+- **Nu rutezi pe GND/Power plane**, doar Top/Bottom.
+
+Dacă vrei, mergem acum pas cu pas pe **3V3/2.4A**.
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Ok. Îți dau **toți pașii** pentru **3V3/2.4A**, inclusiv **cum schimbi layerul** ca să nu se intersecteze traseele.
+
+---
+
+# ✅ 3V3/2.4A — Pas cu pas (cu schimbare de layer)
+
+## 1) Setări
+- **Route Manual**
+- **Width = 0.3 mm**
+- **Layer activ = Top (ct)**
+
+## 2) Punct de pornire
+- Pornești de la **ieșirea DC/DC (VOUT)** care are net `3V3/2.4A`.
+
+## 3) Traseu principal (backbone)
+- Trasezi un **traseu principal** de 3V3 către zona MCU (U1).
+- Ții traseul **scurt și direct**, colțuri 45°.
+
+## 4) Când nu mai ai loc pe Top
+### Schimbare de layer:
+1. În timpul route‑ului apasă **V** (sau adaugi via manual din toolbar).
+2. Via‑ul te mută pe **Bottom (cb)**.
+3. Continui traseul pe Bottom.
+4. Dacă vrei să revii pe Top, mai pui un via (**V**) și continui pe Top.
+
+> **Important:** Nu routezi pe GND plane sau Power plane manual.  
+> Semnalele se rutează pe **Top** și **Bottom**.
+
+## 5) Leagă consumatorii principali
+Leagă 3V3 către:
+- **MCU (U1)** – pinii VDD/AVDD
+- **IMU (IC3)**  
+- **E‑paper driver** }
+- **Haptic driver**  } NU, ca au valori difeite la proiectul meu, le legi unde ai tu valoarea ta cum trebuie
+- **Test‑pad 3V3**   }
+
+## 6) Legătură la power plane
+Dacă ai poligon 3V3 pe Route63:
+- Pune un **via** lângă traseu ca să se conecteze la plane.
+
+## 7) Re‑fill
+- **Right‑click → Re‑fill Polygon Pours**
+
+---
+
+# Întrebarea ta: „E bună ideea să schimb layerul?”
+Da. Când nu mai ai loc pe Top, **treci pe Bottom** cu via.
+
+---
+
+Dacă vrei, trimite un zoom cu zona DC/DC + MCU și îți spun exact pe unde să treci cu traseul 3V3.
+
+
+
+
+
+
+
+
+
+
+Nu am AVDD. E acelasi lucru AVDD cu VDD?
+
+Mai jos ai **toți pașii pentru 3V3/2.4A**, cu schimbare de layer. La final răspund și despre AVDD.
+
+---
+
+# ✅ 3V3/2.4A – Rutare completă (cu schimbare de layer)
+
+## 1) Setezi routarea
+- **Route Manual**
+- **Width = 0.3 mm**
+- **Layer = Top (ct)**
+
+## 2) Pornire
+- Pornești de la **ieșirea regulatorului (VOUT)** sau de la netul etichetat **`3V3/2.4A`**.
+- Trasezi către **MCU** și restul punctelor principale de 3V3.
+
+## 3) Schimbarea de layer (dacă te blochezi)
+Când nu mai ai loc pe Top:
+1. În timpul routării, apasă **V** → se pune **via**.
+2. Astfel treci pe **Bottom (cb)** sau pe **Power plane (Route63)**.
+3. Continui traseul pe layerul nou.
+
+### Ce layer folosești:
+- **Pentru semnale de 3V3 scurte**: **Bottom (cb)**
+- **Pentru distribuție de power**: **Route63 (Power plane)**
+
+> Dacă ai power plane 3V3 pe Route63, pui un **via** și te “legi” la plane.  
+> Asigură-te că **polygonul 3V3** există în zona respectivă.
+
+## 4) Trasee către consumatori
+- Trasezi către **MCU**, apoi către alte IC‑uri care au 3V3.
+- Păstrezi traseele **scurte și late**.
+
+## 5) Re‑fill
+- **Right‑click → Re‑fill Polygon Pours**.
+
+---
+
+# ✅ AVDD vs VDD
+**Nu, nu sunt același lucru.**  
+AVDD e alimentare „analogică”. Dacă **nu ai AVDD în schematic**, atunci **nu ai ce lega** — folosești doar VDD/3V3.
+
+---
+
+Dacă vrei, trimite un zoom cu zona regulatorului și MCU și îți zic exact pe unde să treci.
+
+
+
+
+Am vddh. Pe ala il leg sau nu la 3v3/2.4A?
+
+
+
+**AVDD vs VDD:** nu sunt același lucru, dar dacă nu ai AVDD în schemă, **nu îl folosești**.
+
+**VDDH:** îl legi la **3V3/2.4A** **doar dacă** în schematic VDDH este pe netul `3V3/2.4A`. Dacă are alt net, urmezi netul lui.
+
+---
+
+## 3V3/2.4A — pași compleți cu schimbare de layer
+
+### 1) Setări
+- **Route Manual**
+- **Width = 0.3 mm**
+- **Layer = Top (ct)**
+
+### 2) Traseu principal
+- Pornești din **VOUT‑ul DC/DC** (ieșirea regulatorului).
+- Tragi un traseu **scurt și gros** către primul consumator mare (MCU / pin 3V3 principal).
+
+### 3) Schimbare de layer (când te blochezi)
+- **Apasă V** (sau alege **Via**) → pui **via** pe traseu.
+- Schimbă layerul pe **Bottom (cb)**.
+- Continui traseul pe Bottom.
+
+### 4) Revenire pe Top
+- Când ajungi aproape de componentă, pui alt **via** și revii pe **Top**.
+
+### 5) Leagă toate punctele 3V3
+- Leagă pinii 3V3 ai MCU, conectori, IC‑uri care sunt pe net `3V3/2.4A`.
+- Ține traseele scurte și cu colțuri la 45°.
+
+### 6) Re‑fill
+- **Right‑click → Re‑fill Polygon Pours**.
+
+---
+
+Dacă vrei, spune-mi unde te blochezi exact pe 3V3 și îți spun traseul concret (pe placa ta).
+
+
+
+
+
+Răspund punctual:
+
+---
+
+## 1) AVDD vs VDD
+- **AVDD nu e același lucru ca VDD**, dar dacă **nu ai AVDD în schemă**, nu te preocupă.  
+- Urmezi exact neturile din schematic (VDD / VDDH / DEC etc.).
+
+---
+
+## 2) VDDH îl leg la 3V3/2.4A?
+**Da**, dacă în schematic VDDH este pe netul `3V3/2.4A`.  
+Nu inventezi conexiuni — urmezi netul din schematic.
+
+---
+
+## 3) „E‑paper driver” – ce aleg?
+Mă refer la **circuitul E‑paper (driver IC + pasivele lui)**, nu la conector.  
+Conectorul (J3) l‑ai pus deja pe margine; acum trasezi **circuitul** lui.
+
+---
+
+## 4) 3V3/2.4A – pași detaliați (de unde ai rămas)
+
+### A) Continuă backbone‑ul
+- Dacă ai tras un traseu principal spre MCU, **continuă-l** către zonele mari de consum.
+- Ține **width = 0.3 mm**, colțuri 45°.
+
+### B) Leagă restul consumatorilor (tot pe 3V3)
+În această ordine:
+1. **E‑paper driver (IC + pasive)**
+2. **Haptic driver (DRV2605)**
+3. **Test‑pad 3V3**
+
+Cum:
+- Route Manual → atingi pinul pe net `3V3/2.4A` → trasezi către el.
+- Dacă nu încape pe Top, **V** pentru via → continui pe Bottom.
+
+### C) Conectează la power plane
+- Lângă traseul 3V3 pune **via** ca să se lege la poligonul `3V3/2.4A` de pe Route63.
+
+### D) Re‑fill
+- **Right‑click → Re‑fill Polygon Pours** (după ce ai mai multe trasee).
+
+---
+
+## 5) Re‑fill „peste tot” leagă firele nevizate?
+**Nu.** Re‑fill doar umple poligoanele.  
+**Nu routează** firele rămase. Airwire‑urile rămân până le rutezi manual.
+
+---
+
+Dacă vrei, îmi spui **unde te-ai blocat la 3V3** (ex: nu ajungi la haptic/EPD), și îți dau traseul exact.
+
+
+E o problema mare ca am dat refill peste tot inainte sa fac rutarea?
+
+Răspund punctual:
+
+## 1) 3V3/2.4A — pași detaliați (cu layer change)
+1. **Route Manual**  
+2. **Width = 0.3 mm**, **Layer = Top (ct)**  
+3. **Pornești din VOUT (DC/DC)** pe net `3V3/2.4A`.  
+4. **Backbone**: trasezi un traseu principal spre MCU (U1).  
+5. **Schimbare layer**: în timpul route‑ului apasă **V** → se pune via și treci pe **Bottom (cb)**.  
+6. **Continui pe Bottom** până ai loc; revii pe Top cu încă un via (V).  
+7. **Leagă consumatorii**:  
+   - **U1 (MCU) – toți pinii VDD/VDDH**  
+   - **IMU (IC3)**  
+   - **E‑paper driver (IC)**  
+   - **Haptic driver**  
+   - **TP_3V3**  
+8. **Conectează la power plane**: pune un via lângă traseu ca să se lege la polygonul `3V3/2.4A` de pe Route63.  
+9. **Re‑fill Polygon Pours**.
+
+> Nu rutezi manual pe GND/POWER plane. Doar Top/Bottom.
+
+---
+
+## 2) Re‑fill înainte de routare
+**Nu e problemă.** Poți da Re‑fill oricând.  
+**Dar** Re‑fill **nu rutează** airwire‑uri. Trebuie trasee manuale.
+
+---
+
+## 3) E‑paper driver — ce aleg?
+**Circuitul (IC‑ul driver)**, nu conectorul.  
+Conectorul e **J3**, driverul e **IC‑ul** + pasivele EPD.
+
+---
+
+## 4) AVDD / VDD / VDDH
+- **AVDD** și **VDD** nu sunt același lucru, dar dacă nu ai AVDD în schemă, îl ignori.  
+- **VDDH** se leagă la **3V3/2.4A** (dacă așa e în schematic).  
+Nu inventa neturi — urmează etichetele din schemă.
+
+---
+
+Dacă vrei, îți fac și **pas cu pas exact pe PCB** pentru 3V3 (spune-mi zona unde te-ai blocat).
+
+
+
+
+Nu merge pe Haptic driver sa conectez, E-paper driver si Test-pad 3v3, ca nu au aceealeasi valori pe unele, ci merge pe L7. Sa il conectez pe ce a rams adica pe L7? Daca da, si dau refill atunci am terminat rutarea?
+
+
+5) Nu pot conecta haptic/EPD/Test‑pad 3V3, “merge pe L7”. Ce fac?
+Conectezi fiecare componentă la netul ei exact din schematic.
+Dacă L7 e legat la 3V3/2.4A, atunci da, îl folosești ca „nod” principal pentru 3V3.
+Nu conecta neturi diferite între ele.
+6) Dacă dau refill, “am terminat rutarea”?
+Nu. Rutarea e terminată doar când airwire‑urile = 0 și toate neturile sunt trase.
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Din discutiile tale de pana acum, te rog sa indrepti si sa ma ajuti sa indreptam greselile facute, pe care nu le-am stiut nici unul dintre noi doi dupa anumite reasamblari:
+
+
+
+-Deci laborantul a spus asa:
+
+Creez 4 layere:
+
+Top pe top si bottom conectez ce semnale uzuale am SDA etc
+Ground  nu trebuie sa am semnale, ci ceva cu BIAS-uri. ZIc bine?
+Power trebuie sa conectez 3V3, VBAT, VBUS, pe asta trebuie sa fac rutarea. Nu facem poligon pour. Incepem cu asta (Power(mov) orice cu V, Vbot, Vbus, VReg si 3v3)
+Botoom
+
+
+- nu trebuie sa am unghi de 90 de grade, trebuie sa am conectat tot
+- mai e rutarea, si placuta 3d, mai sunt 2 pasi de facut
+- respecta toate restrictiile, constrangeriile de pe acest site:
+https://ocw.cs.pub.ro/courses/tsc/proiect2026. Daca crezi ca mai trebuie ceva, poti aduga,momentan, placa mea arata asa: Vezi si cu antena . Nu punem plan de masa pe antena
+ 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Da, ai înțeles corect ideea generală, dar îți corectez exact ce trebuie:
+
+## Corect pentru 4 layere
+- **Top (ct):** semnale + componente  
+- **Route2 (c2):** **DOAR GND plane** (fără semnale)  
+- **Route63 (c63):** **DOAR POWER plane** (`3V3/2.4A`, `VBAT/2.5C`, `VBUS/2.6E`)  
+- **Bottom (cb):** semnale
+
+**BIAS‑uri** = nu. Pe GND plane nu rutezi semnale.
+
+---
+
+## Reguli obligatorii
+- **Fără unghiuri de 90°** (doar 45°).  
+- **Toate net‑urile rutate** (zero airwires la final).  
+- **DRC cu fișierul de pe OCW**.  
+- **Keepout sub antenă** (fără cupru pe toate layerele).  
+- **Toate componentele pe TOP**.
+
+---
+
+## Ce ai de făcut acum (ordinea corectă)
+1) **Termină rutarea** tuturor airwire‑urilor (power → semnale critice → restul).  
+2) **Re‑fill Polygon Pours**.  
+3) **DRC** și corectezi erorile reale.  
+4) **3D models** la final.
+
+---
+
+## Despre antenă
+- Păstrezi **zona fără cupru** sub antenă pe **RestrictTop + RestrictBottom + RestrictVias**.  
+- Nu rutezi semnale pe acolo.
+
+---
+
+Dacă vrei să reparăm pas cu pas, trimite:
+- lista actuală de erori DRC  
+- ce airwire‑uri au mai rămas (numele neturilor)  
+și îți spun exact ce să rutezi și unde.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+
+
+
+Asta e proiectul meu tot, care nu se gaseste pe local, ci in cloud, dar nu stiu cum sa il accese. Iata link ul: https://a360.co/4c7Xdz3  Contine schematicul si PCB ul meu. SChematicul meu e ok, crede ma, la PCB am niste erori si am probleme pe rutare.
+
+EU am aceste mici detalii pe care trebuie sa le respect, mai ales cu antena, care trebuie sa stea langa margine, si langa ea sa stea MCU-ul, adica U1. Fii atent la antena ce zice in urmatoarele detalii:
+
+De unde începi?
+
+    Documentează-te cu privire la procesul de dezvoltare a unui produs. Un punct bun de pornire este https://www.youtube.com/watch?v=x2e5bgu5jhk&ab_channel=OceansidePerspective 
+    Citește documentele ce descriu InkTime, în ordinea dată: https://drive.google.com/drive/folders/1BarXgOeuCjja1SDvt918mNWmGLGZpFav?usp=sharing -> Le poti accesa si sa te uiti prin ele?
+
+
+
+
+
+Constrângeri care trebuie respectate pentru acordarea punctajului:
+
+    În general trebuie să treceți prin checklist-urile de https://github.com/azonenberg/pcb-checklist/     și să vă asigurați că design-ul vostru bifează toate regulile.
+    Respectarea dimensiunilor necesare pentru traseele de putere
+    Verificare ERC și DRC
+    Traseele nu conțin unghiuri drepte
+    Condensatoarele de decuplare (100nF) trebuie să fie amplasate cât mai aproape de pinii de alimentare ai diferitelor module și circuite integrate.
+    Dacă placa este realizată dublu strat, se vor evita, pe cât posibil, vias-uri la traseele de putere.
+    Componentele principale trebuie să fie amplasate conform specificațiilor din documentul cu dimensiuni mecanice si placement.
+    Traseele de alimentare (VCC, VUSB, VBUS, 3V3 etc.) trebuie rutate folosind width = 0.3mm (aveți grijă la traseele de sub integratele BGA, acolo trebuie să variați grosimea!), semnalele de date cu minimum width de 0.15mm
+    Antena trebuie să fie amplasată spre exteriorul PCB-ului și PCB-ul trebuie să fie decupat sub antenă!
+
+Observații și recomandări:
+
+    Constrângerile constau în regulile de bune practici prezentate la laborator (câteva exemple au fost menționate mai sus).
+    Toate rezistențele sunt SMD, în capsulă 0201. Toate condensatoarele sunt SMD, cele cu valori mai mici sau egale cu 100nF sunt în capsulă 0201, cele cu valori mai mari de 100nF sunt 0402 mai puțin acolo unde este specificat în schemă că trebuie să folosiți altă capsulă (ex. 0603, tantal case C etc.).
+    Amplasarea componentelor se face exclusiv pe layer-ul TOP!
+    Rutarea se poate realiza atât pe bottom cât și pe top. În cazul în care rutarea s-a realizat pe 2 layere trebuie ca planul de masă să fie realizat astfel.
+    Pentru a folosi DRC împreună cu fișierul de verificare trebuie să: deschideți meniul DRC > selectați Load… > adăugați fișierul conținut în arhivă.
+    Aplicați Via Stitching între cele două planuri de masă, în special în preajma circuitului radio.
+    Eroarea “Only INPUT pins on NET ID” poate fi ignorată.
+    Suprafața de sub antena nu trebuie inclusă în planul de masă și nu este voie să se ruteze semnale pe sub antenă!!!
+    Erorile de Dimension cauzate de amplasarea celor trei butoane și mufei USB sunt neglijate.
+    Test pad-urile vor fi clar marcate în silkscreen cu numele semnalelor pe care le poartă (de ex. MISO, MOSI, Rx, GND, etc.).
+    Layer-ul de silkscreen trebuie să fie citeț și să conțină doar numele componentelor, nu și valorile acestora. Consultați ghidurile de https://resources.altium.com/p/your-guide-pcb-silkscreen  si https://resources.pcb.cadence.com/blog/2022-essential-pcb-silkscreen-guidelines-for-layout pentru a afla cum puteți să faceți un silkscreen bun.
+Folosiți biblioteca de https://ocw.cs.pub.ro/courses/_media/tsc/inktime_v5.lbr.zip pentru simbolurile și footprint-urile componentelor.
+Folosiți fișierul https://ocw.cs.pub.ro/courses/_media/tsc/inktime_case.f3z.zip  pentru carcasa produsului. Trebuie să adăugați modelul 3D al PCB, cu toate componentele de pe el. De asemenea, trebuie să desenați modelul 3D al https://www.tme.eu/Document/b9e12bf26ad0ba929a22ab5d58f022cd/AKY0106.pdf , al https://www.tme.eu/Document/0ca57a8ffbcd57b5bca53252eb9d6ec3/WSH-12561.pdf si al https://www.tme.eu/ro/details/df-fit0774/motoare-dc/dfrobot/fit0774/ Folosiți dimensiunile mecanice specificate în datasheet-urile bateriei, display-ului și shaker-ului pentru a le desena fidel. Din rațiuni de economisire de spațiu, bateria se va lega direct la două test pad-uri de pe placă (nu vom folosi conectorul JST cu care este dotată).
+Pentru generarea fișierelor Gerber, folosiți https://www.pcbway.com/blog/PCB_Design_Tutorial/How_to_Generate_Gerber_Files_in_Fusion_360_7c039fbf.html Pentru generarea fișierelor Pick and Place și BOM, folosiți https://jlcpcb.com/help/article/how-to-generate-bom-and-cpl-from-fusion360 O resursă foarte utilă pentru componente și modelele 3D ale lor este https://componentsearchengine.com/ 
+
+Dimensiunile recomandate ale plăcii și amplasamentul componentelor principale se găsesc în inktime.fbrd.zip. Toate cotele sunt în mm. Grosimea PCB-ului este de 1mm, nu 1.6mm! Atenție: amplasarea este doar o recomandare care asigură că butoanele de pe PCB sunt aliniate cu butoanele fizice ale carcasei. Aveți mână liberă să modificați amplasarea lor, cu condiția să modificați și carcasa. De asemenea, va trebui să modificați carcasa pentru a permite accesul la mufa USB-C, dacă acestea nu se aliniază cum trebuie. 
+
+
+Punctaj:
+
+    [2p] Implementarea schemei conform modelului primit.
+    [2p] Realizarea board-ului conform specificațiilor din fisierul layout - amplasarea tuturor componentelor se va face pe layer-ul TOP. Board-ul trebuie sa aibă dimensiunile specificate în fișierul cu dimensiunile fizice ale plăcii iar componentele principale trebuie să respecte layout-ul recomandat. De asemenea, componentele trebuie grupate în jurul IC-urilor principale (procesor, IMU, DC/DC etc.). Trebuie să aveți câte un plan de masă atât pe TOP cât și pe BOTTOM! Dacă folosiți patru straturi pentru rutare, unul din straturile interioare trebuie să fie de masă.
+    [3p] Respectarea constrângerilor și a regulilor de good practice. Pentru a verifica buna implementare a PCB-ului vă rugăm să folosiți acest https://ocw.cs.pub.ro/courses/_media/tsc/jlcpcb-2layers.dru.zip pentru verificarea DRC. Constrângerile sunt și de natură mecanică - PCB-ul trebuie să intre în carcasa dată. Acest lucru vă forțează să amplasați componentele într-un anumit fel (de ex. butoanele și mufa USB, sau conectorul pentru ecranul e-paper)
+[2p] Rezolvarea tuturor bug-urilor și altor probleme semnalate în urma review-ului din etapa de DVT.
+[1p] README - pașii de implementare, probleme, decizii luate (ex: “am acceptat aceste erori de overlap pentru că…”)
+[-5p] dacă review-ul este făcut deficitar sau nu este făcut deloc
+
+
+Poti accesa tot ce ti-am trimis si link uri, si drive uri si etc? Te rog ajuta ma
+
+In poza pe care ti-am trimis-o, nu mi-ai putea trimite un fisier *.ctl, pe care sa il incarc si sa faca autoroutarea Fusion ul care sa respecte TOATE CONSTRANGERIILE DE MAI SUS, SA NU FACA OMISII, SI dupa sa il INCARC pe Fusion, cu toate ca nu am voie sa fac autoroute? Daca sunt greseli, la fire, la etc. mi le poti indrepta tu te rog pe link ul pe care ti l-am trimis primu, din acest mesaj?
+
+Te rog ajuta ma, ca dupa sa trec la partea de 3D
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+
+Nu pot accesa link‑urile tale (A360/Drive/YouTube) și nu pot edita proiectul direct în cloud. Pot doar să te ghidez pas cu pas pe ce vezi tu în Fusion.  
+De asemenea, **nu pot să‑ți dau un fișier `.ctl` pentru autorouter** și nici nu e recomandat aici (în plus, cerința spune să nu folosești autoroute pentru semnale/power).
+
+## Ce pot face acum, concret
+Dacă vrei ajutor real, trimite:
+- **fișierele locale** (`.fsch` + `.fbrd`) sau
+- **screenshot** cu lista de erori DRC + lista de airwires rămase
+
+Și îți spun exact ce să corectezi.
+
+---
+
+## Răspunsuri la punctele tale
+- **Antena**: trebuie la margine + keepout sub ea pe Top/Bottom/Vias (corect).  
+- **4 layere**: Top/Bottom semnale; Route2 = GND plane; Route63 = Power plane.  
+- **Power plane**: poligoane separate `3V3/2.4A`, `VBAT/2.5C`, `VBUS/2.6E`, fără suprapunere.  
+- **Rute**: fără colțuri 90°, toate neturile rulate la final.  
+- **DRC**: rulezi cu fișierul OCW, corectezi erorile reale.
+
+---
+
+## Ce urmează ca să termini
+1) **Termini rutarea** neturilor rămase (airwire list).  
+2) **Re‑fill polygon**.  
+3) **DRC** → corectezi erorile reale.  
+4) **3D**.
+
+---
+
+Dacă vrei, începem imediat cu **lista de airwires**: trimite un screenshot cu neturile rămase și îți spun exact ce să rutezi și unde.
+
+
+
+
+Ce fac, sterg toate rutele, ca sunt gresite, si reasez pozitiile componentelor, ca e chestia aia cu antena care trebuie pozitionata intr-un fel?  Daca am dat polygon pour, merge sa trag componentele, se schimba ceva, sau nu se schimba nimic?
+
+
+
+Nu șterge tot.  
+
+**Ce faci corect:**
+- Dacă **poziția antenei e greșită**, muți **doar** zona antenei + componentele RF și refaci rutele din zona aia.  
+- Dacă restul e ok, **nu ștergi toate rutele**.
+
+**Polygon pour:**  
+Da, poți muta componente după ce ai pour.  
+Dar trebuie să:
+- **Re‑fill Polygon Pours** după fiecare mutare,
+- și să **refaci rutele** care s‑au rupt.
+
+Spune-mi: **antena e plasată greșit** sau doar îți e teamă că e? Dacă îmi trimiți un zoom cu antena, îți spun dacă trebuie mutată.
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------
+
+La rutare trebuie sa mai fac asta:
+
+## 5) Leagă consumatorii principali
+Leagă 3V3 către:
+- **MCU (U1)** – pinii VDD/AVDD
+- **IMU (IC3)**  
+- **E‑paper driver**
+- **Haptic driver**
+- **Test‑pad 3V3**
+
+## 6) Legătură la power plane
+Dacă ai poligon 3V3 pe Route63:
+- Pune un **via** lângă traseu ca să se conecteze la plane.
+
+## 7) Re‑fill
+- **Right‑click → Re‑fill Polygon Pours**
+
+Respectand asta:
+
+-Deci laborantul a spus asa:
+
+Creez 4 layere:
+
+Top pe top si bottom conectez ce semnale uzuale am SDA etc
+Ground  nu trebuie sa am semnale, ci ceva cu BIAS-uri. ZIc bine?
+Power trebuie sa conectez 3V3, VBAT, VBUS, pe asta trebuie sa fac rutarea. Nu facem poligon pour. Incepem cu asta
+Botoom
+
+
+- nu trebuie sa am unghi de 90 de grade, trebuie sa am conectat tot
+- mai e rutarea, si placuta 3d, mai sunt 2 pasi de facut
+- respecta toate restrictiile, constrangeriile de pe acest site:
+https://ocw.cs.pub.ro/courses/tsc/proiect2026. Daca crezi ca mai trebuie ceva, poti aduga,momentan, placa mea arata asa: Vezi si cu antena . Nu punem plan de masa pe antena
+ 
+asta fiind rutarea, si dupa trec la 3d pcd, corect?
+
+
+
+
+
+
+
+Pe scurt, da: **mai ai de terminat rutarea**, apoi **DRC**, apoi **3D**.
+
+Corecturi/clarificări:
+
+- **4 layere:**  
+  - Top/Bottom = semnale  
+  - Route2 = **GND plane** (fără semnale)  
+  - Route63 = **POWER plane** (`3V3/2.4A`, `VBAT/2.5C`, `VBUS/2.6E`)  
+- „BIAS‑uri” nu se rutează pe GND plane.
+- **POWER plane** se face **cu poligoane** (altfel nu e plane).  
+- **Nu rutezi manual pe plane‑uri**; rutezi pe Top/Bottom și legi cu via la plane.
+
+Deci:
+1) Rutezi power și consumatorii (MCU, IMU, E‑paper, Haptic, TP 3V3).  
+2) Pui via‑uri ca să se lege la plane.  
+3) Re‑fill.  
+4) DRC (erori 0).  
+5) Abia apoi 3D.
+
+Antena: keepout fără cupru pe toate layerele, cum ai făcut.
+
+Dacă vrei, îți dau pas cu pas următorul net de rutat.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mai jos ai pașii **refăcuți** pentru 3D, în ordinea corectă (exact cum a zis laborantul), plus unde intră jlcpcb/parts.
+
+---
+
+## 1) Găsești modelul 3D (STEP)
+- Cauți componenta pe net (Mouser / TME / ComponentSearchEngine etc.).  
+- Descarci **.STEP / .STP**.
+
+## 2) Import în footprint (Fusion)
+1. **Library → Open Library Manager**  
+2. Găsești componenta → **Edit**  
+3. **Package (footprint)** → click dreapta → **3D Model → Create New 3D Model**  
+4. **Upload / Import** fișierul `.STEP`  
+5. **Insert into current design**  
+6. **Rotate + align** corect pe footprint  
+7. **Save** library
+
+## 3) Update în proiect
+1. Revii în **Schematic** → **Update** (Yes)  
+2. Revii în **PCB** → **Update PCB**
+
+## 4) Verifici în 3D
+- **Switch → 3D PCB** (vezi toate modelele)
+
+---
+
+## 5) Legat de JLCPCB Parts
+Site-ul [jlcpcb.com/parts](https://jlcpcb.com/parts) e pentru **BOM / LCSC parts** (nu 3D).  
+Îl folosești când pregătești **BOM/CPL** pentru asamblare.
+
+---
+
+Dacă vrei, spune-mi cu ce componentă începi (USB‑C, baterie, display) și îți dau pașii exact pentru aceea.
