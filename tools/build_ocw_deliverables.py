@@ -4,7 +4,8 @@
 Generează livrabile OCW din fișierul Eagle/Fusion `.brd`:
 - Manufacturing/InkTime.bom (CSV, UTF-8)
 - Manufacturing/InkTime.cpl (CSV tip JLC: Designator, Mid X, Mid Y, Layer, Rotation)
-- Manufacturing/gerbers.zip (straturi de cupru 1/2/15/16, profil layer 20, fișier găuri)
+- Manufacturing/gerbers.zip — cupru, profil, găuri din XML; dacă există fișiere în
+  Manufacturing/fusion_export/ (export CAM Fusion), sunt incluse cu prioritate (suprascriu numele identic).
 - Hardware/InkTime_Schematic.pdf (din capturile PNG ale schemei)
 
 Necesită: pip install gerbonara reportlab pillow
@@ -40,6 +41,8 @@ OUT_BOM = ROOT / "Manufacturing" / "InkTime.bom"
 OUT_CPL = ROOT / "Manufacturing" / "InkTime.cpl"
 OUT_PDF = ROOT / "Hardware" / "InkTime_Schematic.pdf"
 OUT_ZIP = ROOT / "Manufacturing" / "gerbers.zip"
+FUSION_EXPORT_DIR = ROOT / "Manufacturing" / "fusion_export"
+FUSION_SKIP_NAMES = frozenset({".gitkeep", "desktop.ini", "thumbs.db"})
 
 
 def _eagle_arc_center(x1: float, y1: float, x2: float, y2: float, curve_deg: float) -> tuple[float, float] | None:
@@ -146,6 +149,22 @@ def _write_gerber(path: Path, objects: list, comment: str) -> None:
     g.save(str(path), drop_comments=False)
 
 
+def _copy_fusion_export_files(dest: Path) -> set[str]:
+    """Copiază fișierele exportate manual din Fusion în `dest`. Returnează numele fișierelor."""
+    names: set[str] = set()
+    if not FUSION_EXPORT_DIR.is_dir():
+        return names
+    for src in sorted(FUSION_EXPORT_DIR.iterdir()):
+        if not src.is_file():
+            continue
+        key = src.name.lower()
+        if key in FUSION_SKIP_NAMES or src.name.startswith("."):
+            continue
+        shutil.copy2(src, dest / src.name)
+        names.add(src.name)
+    return names
+
+
 def build_gerbers_zip() -> None:
     tree = ET.parse(BRD_PATH)
     root = tree.getroot()
@@ -156,34 +175,37 @@ def build_gerbers_zip() -> None:
     vias = _collect_vias(board)
     tmp = Path(tempfile.mkdtemp(prefix="inktime_gerber_"))
     try:
-        _write_gerber(
-            tmp / "InkTime.GTL",
-            layers[1],
-            "Copper TOP (Eagle layer 1) — extras automat din XML .brd",
-        )
-        _write_gerber(
-            tmp / "InkTime.G1",
-            layers[2],
-            "Inner layer 1 / Route2 (Eagle layer 2)",
-        )
-        _write_gerber(
-            tmp / "InkTime.G2",
-            layers[15],
-            "Inner layer 2 / Route15 (Eagle layer 15)",
-        )
-        _write_gerber(
-            tmp / "InkTime.GBL",
-            layers[16],
-            "Copper BOTTOM (Eagle layer 16)",
-        )
-        _write_gerber(
-            tmp / "InkTime.GKO",
-            layers[20],
-            "Board outline / Dimension (Eagle layer 20)",
-        )
-        if vias:
-            ex = ExcellonFile(objects=vias, comments=["Plated through holes from via definitions"])
+        fusion_names = _copy_fusion_export_files(tmp)
+
+        auto_layers = [
+            (
+                "InkTime.GTL",
+                layers[1],
+                "Copper TOP (Eagle layer 1) — extras automat din XML .brd",
+            ),
+            ("InkTime.G1", layers[2], "Inner layer 1 / Route2 (Eagle layer 2)"),
+            ("InkTime.G2", layers[15], "Inner layer 2 / Route15 (Eagle layer 15)"),
+            (
+                "InkTime.GBL",
+                layers[16],
+                "Copper BOTTOM (Eagle layer 16)",
+            ),
+            (
+                "InkTime.GKO",
+                layers[20],
+                "Board outline / Dimension (Eagle layer 20)",
+            ),
+        ]
+        for fname, objs, cmt in auto_layers:
+            if fname not in fusion_names:
+                _write_gerber(tmp / fname, objs, cmt)
+
+        if "InkTime.drl" not in fusion_names and vias:
+            ex = ExcellonFile(
+                objects=vias, comments=["Plated through holes from via definitions"]
+            )
             ex.save(str(tmp / "InkTime.drl"), drop_comments=False)
+
         if OUT_ZIP.exists():
             OUT_ZIP.unlink()
         archive_path = Path(
