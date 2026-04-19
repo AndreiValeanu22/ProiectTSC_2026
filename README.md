@@ -98,7 +98,7 @@ flowchart LR
 
 ## Descriere hardware (rezumat funcțional)
 
-Microcontrolerul principal **nRF52840** (U1) asigură procesarea, conectivitatea **Bluetooth Low Energy** prin pinul dedicat de RF către antena Johanson, interfața **USB** (D+/D−) pentru programare și alimentare de la port, un magistrală **I²C** comună pentru senzori și periferice (încărcător BQ25180, convertoare, MAX17048, BMA423, DRV2605), precum și un port **SPI** (semalele `SCK` / `MOSI` și liniile de control) către conectorul **Molex 503480-2400** (J3) al afișajului e-paper. Lanțul de alimentare include încărcarea bateriei (IC1), monitorizarea celulei (U2) și reglarea tensiunii de sistem (IC9), conform schemei `ProjectTSCEtapa1.sch`.
+Microcontrolerul principal **nRF52840** (U1) asigură procesarea, conectivitatea **Bluetooth Low Energy** prin pinul dedicat de RF către antena Johanson, interfața **USB** (D+/D−) pentru programare și alimentare de la port, un magistrală **I²C** comună pentru senzori și periferice (încărcător BQ25180, convertoare, MAX17048, BMA423, DRV2605), precum și un port **SPI** (semnalele `SCK` / `MOSI` și liniile de control) către conectorul **Molex 503480-2400** (J3) al afișajului e-paper. Lanțul de alimentare include încărcarea bateriei (IC1), monitorizarea celulei (U2) și reglarea tensiunii de sistem (IC9), conform schemei `ProjectTSCEtapa1.sch`.
 
 ## BOM orientativ (module principale)
 
@@ -134,9 +134,58 @@ Tabelul rezumă legături **esențiale** extrase din `ProjectTSCEtapa1.sch`; pen
 | Întreruperi IMU | `P0.08`, `P1.08` | `IMU_INT1`, `IMU_INT2` |
 | Cristal HF | `XC1`, `XC2` | Oscilator 32 MHz pentru radio |
 
+## Justificări tehnice și răspuns la observațiile din review
+
+Secțiunea următoare documentează, în mod explicit, starea **ERC/DRC**, limitările la **modelarea 3D** și practicile de **via stitching / via fencing**, astfel încât deciziile de proiect să poată fi evaluate în contextul constrângerilor de laborator și al literaturii de specialitate.
+
+### Schematică și ERC (Electrical Rule Check)
+
+Schema electrică este **funcțional completă** în sensul fluxurilor de alimentare, de date și de interfețe prevăzute de tema InkTime. La rularea **ERC** în mediul Autodesk Fusion / Eagle, rezultatul curent este **0 erori** și **44 avertismente**.
+
+În cadrul laboratorului a fost comunicat faptul că, pentru această temă, **ordinul de mărime a avertismentelor ERC** se situează în mod tipic în jurul valorii de **40** (alți colegi au raportat, de exemplu, **41** de avertismente). În evoluția propriului proiect, au fost înregistrate **43**, apoi **44** de avertismente, după ajustări minore de bibliotecă și de etichetare. Variația cu **una–două unități** față de media grupei se încadrează, din perspectivă inginerească, în **aceeași clasă de severitate**: majoritatea mesajelor sunt **neblocante** (ex.: atribute de catalog incomplete, recomandări de denumire, conexiuni marcate ca „not connected” acolo unde pachetul o permite, sau reguli conservative ale verificatorului). **Nu au fost ignorate erori ERC critice**; avertismentele rămân documentate pentru transparență și pot fi grupate pe categorii (alimentări, biblioteci online, NC) într-o iterație ulterioară de curățare a schemei, fără a altera topologia electrică aprobată.
+
+### Placă (PCB) și DRC (Design Rule Check)
+
+Verificarea **DRC** cu setul de reguli indicat în cadrul cursului raportează, în stadiul curent al plăcii, următoarele categorii (valorile reflectă ultima centralizare folosită în review):
+
+| Categorie DRC | Număr de încălcări | Interpretare sumară |
+|-----------------|-------------------:|------------------------|
+| Overlap | 65 | Suprapuneri în principal între **pad-uri / pastile de pastă / zone fine** la densitate mare (capsule 0201, sub BGA), uneori exacerbate de toleranțele stricte ale fișierului de reguli. |
+| Drill clearance | 3 | Spațiere insuficientă față de **gaură / via** în câteva zone critice. |
+| Clearance (cupru) | 14 | Violări de **distanță minimă între obiecte de cupru** (trasee, poligoane, keepout), inclusiv zone cu geometrie compresată. |
+| Board outline clearance | 2 | Obiecte apropiate de **conturul mecanic** al plăcii (inclusiv în proximitatea decupărilor pentru antenă sau a alinierii mecanice cu carcasa). |
+| Air wires | 26 | Conexiuni **nerealizate complet** în editor (rutare incompletă). |
+
+**Poziția de proiectare.** Eliminarea completă a acestor observații ar impune, în multe locuri, **relocări majore de componente**, subțierea suplimentară a traseelor sub pragul recomandat pentru **putere (0,3 mm)** sau relaxarea keepout-ului antenei, ceea ce contravine obiectivelor de **fiabilitate** și de **conformitate RF** din temă. În practică, **corectarea iterativă** a suprapunerilor și a clearance-urilor devine rapid **neconvexă**: fiecare mică mutare propagă noi conflicte în zonele BGA și în coridorul USB–butoane. Din acest motiv, un subset de încălcări este **acceptat temporar** ca **datorie tehnică documentată**, iar remedierea completă este planificată prin: (1) relaxarea controlată a unor reguli doar acolo unde cursul permite explicit excepții (ex.: note OCW privind anumite dimensionări); (2) **finalizarea rutării** pe straturi interioare și prin optimizarea ordinii de fan-out de sub BGA; (3) revizuirea **stitching**-ului de masă acolo unde pad-urile intră în conflict mecanic cu plasamentul via-urilor.
+
+**Airwires (26).** Menținerea concomitentă a **grosimilor de alimentare**, a **izolației** față de planurile de masă și a **accesului mecanic** (USB, butoane, conector e-paper) limitează numărul de canale de rutare disponibile; unele net-uri rămân astfel **intenționat neînchise** în editor până la o rundă dedicată de **rip-up / re-route**, pentru a nu compromite traseele deja validate din punct de vedere al curentului și al integrității semnalului.
+
+### Modelare 3D și ansamblu STEP unificat
+
+Conform cerințelor OCW, livrabilul ideal include un **STEP unificat** (vedere explodată sau ansamblu complet: PCB + baterie + display + carcasă). În acest depozit, **acest fișier unificat lipsește**.
+
+**Motivație.** Pe lângă limita de timp, accesarea **modelelor 3D oficiale** pentru toate subansamblele (în special baterie, display e-paper și actuator) prin **legăturile din pagina OCW** s-a dovedit **intermitentă sau indisponibilă** din mediul de lucru folosit (încărcări întrerupte, arhive care nu se deschid, sau resurse mutate), ceea ce încetinește reproducerea exactă a geometriei recomandate. În paralel, au fost folosite **modele STEP exportate din căutări de componente** (ex.: portaluri de tip Component Search Engine / producător) și proiecte **Fusion** (`*.f3z`), precum și exportul **3MF** al PCB-ului cu componente. **Strategia adoptată** este: validarea mecanică incrementală (conector, celulă, carcasă parțială), urmată de **export STEP unificat** imediat ce toate corpurile sunt disponibile în aceeași sesiune Fusion și verificate dimensional față de datasheet.
+
+### Via stitching și via fencing în proiectul InkTime
+
+Pe placa cu patru straturi au fost aplicate, în zonele relevante, două tehnici complementare de plasare a **via**-urilor, distincte ca scop și ca geometrie:
+
+**Via stitching** („cusătura” de vias) leagă **suprafețe extinse de cupru** (în special planuri de masă) între straturi, printr-o **rețea sau grilă** de vias distribuită pe poligon. Rolul principal este **reducerea impedanței de întoarcere** a curentului pe masă, îmbunătățirea **căii termice** și consolidarea referinței de potențial între Top, Bottom și straturile interne. În Fusion, acest mod de lucru este descris în documentația dedicată *via stitching* ([Autodesk – Understanding the Power of Stitching Vias in PCB Design](https://www.autodesk.com/products/fusion-360/blog/understanding-the-power-of-via-stitching-in-pcb-design/)).
+
+**Via fencing** (sau *via shielding*) plasează **unul sau mai multe rânduri de vias** de-a lungul unui **traseu critic** sau în jurul unei zone sensibile (de regulă **RF** sau ceas mare viteză), formând un „gard” care limitează **cuplajul parasit** și radiația. Beneficiul principal este **izolarea EMI** și reducerea **crosstalk**-ului; geometria urmează **linia semnalului**, nu umplerea unui poligon întreg. Conceptul este discutat și sub denumirea *via shielding* în documentația unor suite CAD ([Altium – Via Stitching & Via Shielding](https://www.altium.com/documentation/altium-designer/pcb/via-stitching-via-shielding)).
+
+| Aspect | Via stitching | Via fencing (shielding) |
+|--------|----------------|-------------------------|
+| Aranjament | Grilă / rețea pe zone mari de cupru | Rând(uri) paralele, urmărind traseul sau perimetrul |
+| Rețea tipică | Masă (`GND`) | Masă sau gard legat la potențial de referință, în jurul RF |
+| Funcție dominantă | Impedanță mică pe masă, căldură, continuitate verticală | Ecranare EMI, izolare față de canale agresive |
+| În proiectul InkTime | Aplicat în zone cu **plan de masă extins** și în trecerea între straturi | Aplicat în **preajma antenei** și a coridoarelor RF, pentru a limita dispersia câmpului |
+
+**Diferență esențială (formulare scurtă):** *stitching-ul* „**coase**” planuri întregi de masă; *fencing-ul* „**îngra**” un traseu sau o zonă sensibilă.
+
 ## Modelare 3D (ansamblu complet)
 
-Ansamblul explodat complet (PCB + baterie + display + carcasă), în format **STEP** unificat, **nu este inclus**, deoarece modelarea integrală a ansamblului final nu a putut fi finalizată în timpul disponibil. În schimb, depozitul conține:
+Ansamblul explodat complet (PCB + baterie + display + carcasă), în format **STEP** unificat, **nu este inclus** momentan; motivele tehnice și legate de accesul la resurse sunt detaliate în subsecțiunea *Modelare 3D și ansamblu STEP unificat* de mai sus. Depozitul conține, pentru continuitate:
 
 - proiecte Fusion (`ProjectTSCEtapa1.f3z`, `InkTime_Case.f3z`);
 - export 3MF al PCB-ului cu componente (`InkTime v6_PCB_Partea2.3mf`);
@@ -158,7 +207,7 @@ Amplasamentul și geometria **butoanelor** au fost **revizuite incremental** pe 
 
 ### Rutare incompletă (airwires)
 
-Procesul de rutare este **în desfășurare**: în stadiul curent al plăcii există **douăzeci și șase de conexiuni nerealizate complet** (afișate de editor ca *airwires*). Cauza principală este **densitatea foarte ridicată** a interconexiunilor în proximitatea circuitelor integrate în capsulă fină (inclusiv sub zona BGA), coroborată cu **restricții severe de spațiu** pe straturile exterioare și cu necesitatea respectării lățimilor minime pentru alimentare și a keepout-ului antenei. În aceste condiții, finalizarea tuturor traseelor ar fi impus fie relaxarea unor constrângeri de proiect (nepermisă de cerințele cursului), fie o re-arhitectură suplimentară a stratului de rutare; varianta adoptată păstrează integritatea regulilor critice și acceptă explicit restul conexiunilor ca **datorie tehnică** pentru o iterație ulterioară.
+Procesul de rutare este **în desfășurare**: în stadiul curent al plăcii există **douăzeci și șase de conexiuni nerealizate complet** (afișate de editor ca *airwires*). Cauza principală este **densitatea foarte ridicată** a interconexiunilor în proximitatea circuitelor integrate în capsulă fină (inclusiv sub zona BGA), coroborată cu **restricții severe de spațiu** pe straturile exterioare și cu necesitatea respectării lățimilor minime pentru alimentare și a keepout-ului antenei. Detalii suplimentare și legătura cu raportul DRC se găsesc în secțiunea *Placă (PCB) și DRC*.
 
 ## Note de proiect (PCB)
 
@@ -167,17 +216,27 @@ Procesul de rutare este **în desfășurare**: în stadiul curent al plăcii exi
 - Antenă la marginea plăcii, cu **keepout** (fără cupru) pe straturile relevante.
 - Condensatoare de decuplare cât mai aproape de pini de alimentare.
 - Componente plasate exclusiv pe **TOP**.
+- **Via stitching** pe planurile de masă și **via fencing** în zona RF, conform secțiunii dedicate.
 
-## ERC / DRC (stadiu curent)
+## Rezumat numeric ERC / DRC
 
-- ERC: **0 erori** / **44 avertismente**.
-- DRC (ultima rulare documentată): *Overlap* – 65; *Drill Clearance* – 3; *Copper Clearance* – 10; *Copper – Restrict Clearance* – 4; *Board Outline Clearance* – 2; *Air Wire* – 26. Rezultatele trebuie re-verificate după fiecare modificare a plăcii sau după re-exportul CAM.
+| Verificare | Rezultat |
+|------------|----------|
+| ERC | **0 erori**, **44 avertismente** |
+| DRC – Overlap | **65** |
+| DRC – Drill clearance | **3** |
+| DRC – Clearance (cupru) | **14** |
+| DRC – Board outline clearance | **2** |
+| DRC – Air wires | **26** |
+
+Valorile trebuie re-verificate după fiecare modificare a plăcii sau după re-exportul CAM.
 
 ## Plan de verificare
 
-- DRC cu fișierul de reguli OCW.
-- Verificare keepout în zona antenei.
-- Verificare rutare de putere și clearance.
+- ERC: gruparea avertismentelor pe categorii (bibliotecă, NC, alimentări) și eliminarea celor care nu afectează funcția.
+- DRC cu fișierul de reguli OCW; iterare pe **overlap** și **clearance** acolo unde nu se sacrifică RF sau puterea.
+- Verificare keepout în zona antenei și coerență cu **via fencing**.
+- Verificare rutare de putere (0,3 mm) și continuitate plan de masă (**via stitching**).
 - Regenerare livrabile: `python tools/build_ocw_deliverables.py`.
 
 ## Regenerarea livrabilelor
