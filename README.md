@@ -164,8 +164,6 @@ Verificarea **DRC** cu setul de reguli indicat în cadrul cursului raportează, 
 
 Conform cerințelor OCW, livrabilul ideal include un **STEP unificat** (vedere explodată sau ansamblu complet: PCB + baterie + display + carcasă). În acest depozit, **acest fișier unificat lipsește**.
 
-**Motivație.** Pe lângă limita de timp, accesarea **modelelor 3D oficiale** pentru toate subansamblele (în special baterie, display e-paper și actuator) prin **legăturile din pagina OCW** s-a dovedit **intermitentă sau indisponibilă** din mediul de lucru folosit (încărcări întrerupte, arhive care nu se deschid, sau resurse mutate), ceea ce încetinește reproducerea exactă a geometriei recomandate. În paralel, au fost folosite **modele STEP exportate din căutări de componente** (ex.: portaluri de tip Component Search Engine / producător) și proiecte **Fusion** (`*.f3z`), precum și exportul **3MF** al PCB-ului cu componente. **Strategia adoptată** este: validarea mecanică incrementală (conector, celulă, carcasă parțială), urmată de **export STEP unificat** imediat ce toate corpurile sunt disponibile în aceeași sesiune Fusion și verificate dimensional față de datasheet.
-
 ### Via stitching și via fencing (clarificare pentru acest layout)
 
 În documentație apar adesea împreună **via stitching** și **via fencing** (*via shielding*). În **proiectul InkTime**, ceea ce apare **concret** în placă sunt în primul rând **vias care leagă rețeaua de masă (`GND`) între straturi fizice diferite** (de exemplu cupru pe **Top**, plan de masă pe stratul interior denumit în fișier **Route2**, cupru pe **Bottom**). Acest comportament intră la **via stitching**: **același net electric** (masă) este „cusut” **vertical** prin vias între **layere cu denumiri diferite** în editor. **Nu** este necesar ca două straturi să aibă **același nume** în fișierul `.brd`; este necesar ca **același potențial de referință** să fie continuu între straturi, ceea ce reduce impedanța de masă și ajută la disiparea termică. Referință: [Autodesk – Understanding the Power of Stitching Vias in PCB Design](https://www.autodesk.com/products/fusion-360/blog/understanding-the-power-of-via-stitching-in-pcb-design/).
@@ -183,7 +181,7 @@ Conform cerințelor OCW, livrabilul ideal include un **STEP unificat** (vedere e
 
 ## Modelare 3D (ansamblu complet)
 
-Ansamblul explodat complet (PCB + baterie + display + carcasă), în format **STEP** unificat, **nu este inclus** momentan; motivele tehnice și legate de accesul la resurse sunt detaliate în subsecțiunea *Modelare 3D și ansamblu STEP unificat* de mai sus. Depozitul conține, pentru continuitate:
+Ansamblul explodat complet (PCB + baterie + display + carcasă), în format **STEP** unificat, **nu este inclus** momentan. Depozitul conține, pentru continuitate:
 
 - proiecte Fusion (`ProjectTSCEtapa1.f3z`, `InkTime_Case.f3z`);
 - export 3MF al PCB-ului cu componente (`InkTime v6_PCB_Partea2.3mf`);
