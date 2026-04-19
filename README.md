@@ -136,7 +136,7 @@ Tabelul rezumă legături **esențiale** extrase din `ProjectTSCEtapa1.sch`; pen
 
 ## Justificări tehnice și răspuns la observațiile din review
 
-Secțiunea următoare documentează, în mod explicit, starea **ERC/DRC**, limitările la **modelarea 3D** și practicile de **via stitching / via fencing**, astfel încât deciziile de proiect să poată fi evaluate în contextul constrângerilor de laborator și al literaturii de specialitate.
+Secțiunea următoare documentează, în mod explicit, starea **ERC/DRC**, limitările la **modelarea 3D** și, pentru transparență, **via stitching** (ce apare concret în layout) versus **via fencing** (definiție de referință din documentație / curs).
 
 ### Schematică și ERC (Electrical Rule Check)
 
@@ -166,22 +166,20 @@ Conform cerințelor OCW, livrabilul ideal include un **STEP unificat** (vedere e
 
 **Motivație.** Pe lângă limita de timp, accesarea **modelelor 3D oficiale** pentru toate subansamblele (în special baterie, display e-paper și actuator) prin **legăturile din pagina OCW** s-a dovedit **intermitentă sau indisponibilă** din mediul de lucru folosit (încărcări întrerupte, arhive care nu se deschid, sau resurse mutate), ceea ce încetinește reproducerea exactă a geometriei recomandate. În paralel, au fost folosite **modele STEP exportate din căutări de componente** (ex.: portaluri de tip Component Search Engine / producător) și proiecte **Fusion** (`*.f3z`), precum și exportul **3MF** al PCB-ului cu componente. **Strategia adoptată** este: validarea mecanică incrementală (conector, celulă, carcasă parțială), urmată de **export STEP unificat** imediat ce toate corpurile sunt disponibile în aceeași sesiune Fusion și verificate dimensional față de datasheet.
 
-### Via stitching și via fencing în proiectul InkTime
+### Via stitching și via fencing (clarificare pentru acest layout)
 
-Pe placa cu patru straturi au fost aplicate, în zonele relevante, două tehnici complementare de plasare a **via**-urilor, distincte ca scop și ca geometrie:
+În documentație apar adesea împreună **via stitching** și **via fencing** (*via shielding*). În **proiectul InkTime**, ceea ce apare **concret** în placă sunt în primul rând **vias care leagă rețeaua de masă (`GND`) între straturi fizice diferite** (de exemplu cupru pe **Top**, plan de masă pe stratul interior denumit în fișier **Route2**, cupru pe **Bottom**). Acest comportament intră la **via stitching**: **același net electric** (masă) este „cusut” **vertical** prin vias între **layere cu denumiri diferite** în editor. **Nu** este necesar ca două straturi să aibă **același nume** în fișierul `.brd`; este necesar ca **același potențial de referință** să fie continuu între straturi, ceea ce reduce impedanța de masă și ajută la disiparea termică. Referință: [Autodesk – Understanding the Power of Stitching Vias in PCB Design](https://www.autodesk.com/products/fusion-360/blog/understanding-the-power-of-via-stitching-in-pcb-design/).
 
-**Via stitching** („cusătura” de vias) leagă **suprafețe extinse de cupru** (în special planuri de masă) între straturi, printr-o **rețea sau grilă** de vias distribuită pe poligon. Rolul principal este **reducerea impedanței de întoarcere** a curentului pe masă, îmbunătățirea **căii termice** și consolidarea referinței de potențial între Top, Bottom și straturile interne. În Fusion, acest mod de lucru este descris în documentația dedicată *via stitching* ([Autodesk – Understanding the Power of Stitching Vias in PCB Design](https://www.autodesk.com/products/fusion-360/blog/understanding-the-power-of-via-stitching-in-pcb-design/)).
-
-**Via fencing** (sau *via shielding*) plasează **unul sau mai multe rânduri de vias** de-a lungul unui **traseu critic** sau în jurul unei zone sensibile (de regulă **RF** sau ceas mare viteză), formând un „gard” care limitează **cuplajul parasit** și radiația. Beneficiul principal este **izolarea EMI** și reducerea **crosstalk**-ului; geometria urmează **linia semnalului**, nu umplerea unui poligon întreg. Conceptul este discutat și sub denumirea *via shielding* în documentația unor suite CAD ([Altium – Via Stitching & Via Shielding](https://www.altium.com/documentation/altium-designer/pcb/via-stitching-via-shielding)).
+**Via fencing** (sau *via shielding*) desemnează, în literatură, **rânduri de vias** plasate **de-a lungul unui traseu** sau în jurul unei zone **RF**, pentru ecranare EMI — geometria urmează **linia semnalului**, nu umplerea unui poligon de masă. Definiție și contrast formal: [Altium – Via Stitching & Via Shielding](https://www.altium.com/documentation/altium-designer/pcb/via-stitching-via-shielding).
 
 | Aspect | Via stitching | Via fencing (shielding) |
 |--------|----------------|-------------------------|
-| Aranjament | Grilă / rețea pe zone mari de cupru | Rând(uri) paralele, urmărind traseul sau perimetrul |
-| Rețea tipică | Masă (`GND`) | Masă sau gard legat la potențial de referință, în jurul RF |
-| Funcție dominantă | Impedanță mică pe masă, căldură, continuitate verticală | Ecranare EMI, izolare față de canale agresive |
-| În proiectul InkTime | Aplicat în zone cu **plan de masă extins** și în trecerea între straturi | Aplicat în **preajma antenei** și a coridoarelor RF, pentru a limita dispersia câmpului |
+| Aranjament | Grilă / rețea pe zone mari de cupru (masă) | Rând(uri) paralele, urmărind traseul sau perimetrul |
+| Obiect leagat | **Același net** (ex. `GND`) pe **straturi diferite** | Traseu sau zonă sensibilă (ex. RF), cu gard de referință |
+| Confuzie frecventă | Nu înseamnă „două layere cu același nume în Eagle” | Nu este același lucru cu un **via obișnuit** care doar traversează placa între două trasee de semnal |
+| În proiectul InkTime | **Da**, prin **vias de continuitate pentru masă** între straturi (GND între Top / Route2-GND / Bottom etc.). | **Nu este documentat aici** ca „gard” dedicat de vias pe conturul fiecărui traseu RF; zona antenă este tratată în primul rând prin **keepout** și rutare conform temei; fencing-ul rămâne **reper de curs** pentru design RF avansat. |
 
-**Diferență esențială (formulare scurtă):** *stitching-ul* „**coase**” planuri întregi de masă; *fencing-ul* „**îngra**” un traseu sau o zonă sensibilă.
+**Rezumat:** *stitching* = **cusătură verticală a masei** între layere; *fencing* = **gard** pe lângă traseu; în acest depozit, **afirmația verificabilă** este cea despre **stitching-ul de masă**; **fencing-ul strict** este explicat pentru **comparare**, nu ca să se presupună automat același nivel de implementare ca în exemplele CAD din linkuri.
 
 ## Modelare 3D (ansamblu complet)
 
@@ -216,7 +214,7 @@ Procesul de rutare este **în desfășurare**: în stadiul curent al plăcii exi
 - Antenă la marginea plăcii, cu **keepout** (fără cupru) pe straturile relevante.
 - Condensatoare de decuplare cât mai aproape de pini de alimentare.
 - Componente plasate exclusiv pe **TOP**.
-- **Via stitching** pe planurile de masă și **via fencing** în zona RF, conform secțiunii dedicate.
+- **Via stitching** (vias pentru **GND** între **straturi fizice diferite**; layerele nu trebuie să aibă același nume în `.brd`), conform secțiunii dedicate; **via fencing** strict este doar **explicat** acolo, nu echivalat cu simplele vias de masă.
 
 ## Rezumat numeric ERC / DRC
 
@@ -235,7 +233,7 @@ Valorile trebuie re-verificate după fiecare modificare a plăcii sau după re-e
 
 - ERC: gruparea avertismentelor pe categorii (bibliotecă, NC, alimentări) și eliminarea celor care nu afectează funcția.
 - DRC cu fișierul de reguli OCW; iterare pe **overlap** și **clearance** acolo unde nu se sacrifică RF sau puterea.
-- Verificare keepout în zona antenei și coerență cu **via fencing**.
+- Verificare keepout în zona antenei; eventual **via fencing** dedicat doar dacă se adoptă explicit în layout (reper RF din curs).
 - Verificare rutare de putere (0,3 mm) și continuitate plan de masă (**via stitching**).
 - Regenerare livrabile: `python tools/build_ocw_deliverables.py`.
 
